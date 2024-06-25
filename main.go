@@ -2,10 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/venture-technology/vtx-driver/config"
+	"github.com/venture-technology/vtx-driver/internal/controller"
+	"github.com/venture-technology/vtx-driver/internal/repository"
+	"github.com/venture-technology/vtx-driver/internal/service"
 )
 
 func main() {
@@ -25,6 +30,14 @@ func main() {
 		log.Fatalf("failed to execute migrations: %v", err)
 	}
 
+	router := gin.Default()
+
+	driverRepository := repository.NewDriverRepository(db)
+	driverService := service.NewDriverService(driverRepository)
+	driverController := controller.NewDriverController(driverService)
+
+	fmt.Println(driverController)
+	router.Run(fmt.Sprintf(":%d", config.Server.Port))
 }
 
 func newPostgres(dbconfig config.Database) string {
