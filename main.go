@@ -11,6 +11,8 @@ import (
 	"github.com/venture-technology/vtx-driver/internal/controller"
 	"github.com/venture-technology/vtx-driver/internal/repository"
 	"github.com/venture-technology/vtx-driver/internal/service"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -35,6 +37,8 @@ func main() {
 	driverRepository := repository.NewDriverRepository(db)
 	driverService := service.NewDriverService(driverRepository)
 	driverController := controller.NewDriverController(driverService)
+
+	driverController.RegisterRoutes(router)
 
 	fmt.Println(driverController)
 	router.Run(fmt.Sprintf(":%d", config.Server.Port))
