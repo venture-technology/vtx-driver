@@ -5,6 +5,7 @@ import (
 
 	"github.com/venture-technology/vtx-driver/internal/repository"
 	"github.com/venture-technology/vtx-driver/models"
+	"github.com/venture-technology/vtx-driver/utils"
 )
 
 type DriverService struct {
@@ -18,6 +19,9 @@ func NewDriverService(driverrepository repository.IDriverRepository) *DriverServ
 }
 
 func (d *DriverService) CreateDriver(ctx context.Context, driver *models.Driver) error {
+
+	driver.Password = utils.HashPassword(driver.Password)
+
 	return d.driverrepository.CreateDriver(ctx, driver)
 }
 
