@@ -14,6 +14,7 @@ type ClaimsDriver struct {
 }
 
 func DriverMiddleware() gin.HandlerFunc {
+
 	conf := config.Get()
 
 	return func(c *gin.Context) {
