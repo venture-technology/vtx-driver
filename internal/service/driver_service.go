@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/skip2/go-qrcode"
 	"github.com/venture-technology/vtx-driver/internal/repository"
 	"github.com/venture-technology/vtx-driver/models"
 	"github.com/venture-technology/vtx-driver/utils"
@@ -10,11 +12,13 @@ import (
 
 type DriverService struct {
 	driverrepository repository.IDriverRepository
+	awsrepository    repository.IAWSRepository
 }
 
-func NewDriverService(driverrepository repository.IDriverRepository) *DriverService {
+func NewDriverService(driverrepository repository.IDriverRepository, awsrepository repository.IAWSRepository) *DriverService {
 	return &DriverService{
 		driverrepository: driverrepository,
+		awsrepository:    awsrepository,
 	}
 }
 
@@ -43,4 +47,13 @@ func (d *DriverService) DeleteDriver(ctx context.Context, cnh *string) error {
 
 func (d *DriverService) AuthDriver(ctx context.Context, driver *models.Driver) (*models.Driver, error) {
 	return d.driverrepository.AuthDriver(ctx, driver)
+}
+
+func (d *DriverService) CreateAndSaveQrCode(ctx context.Context, cnh string) (string, error) {
+	url := fmt.Sprintf("https://venture-technology.xyz/driver/%s", cnh)
+	image, err := qrcode.Encode(url, qrcode.Medium, 256)
+	if err != nil {
+		return "", err
+	}
+	return d.awsrepository.SaveImageOnAWSBucket(ctx, image, cnh)
 }
