@@ -48,7 +48,17 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 		return
 	}
 
-	err := ct.driverservice.CreateDriver(c, &input)
+	urlQrCode, err := ct.driverservice.CreateAndSaveQrCode(c, input.CNH)
+
+	if err != nil {
+		log.Printf("error to create QrCode: %s", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "an error occured qwhen creating QrCode"})
+		return
+	}
+
+	input.QrCode = urlQrCode
+
+	err = ct.driverservice.CreateDriver(c, &input)
 
 	if err != nil {
 		log.Printf("error to create driver: %s", err.Error())
