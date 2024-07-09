@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/venture-technology/vtx-driver/internal/exceptions"
 	"github.com/venture-technology/vtx-driver/internal/middleware"
 	"github.com/venture-technology/vtx-driver/internal/service"
 	"github.com/venture-technology/vtx-driver/models"
@@ -44,7 +45,7 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		log.Printf("error to parsed body: %s", err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body content"})
+		c.JSON(http.StatusBadRequest, exceptions.InvalidBodyContentResponseError(err))
 		return
 	}
 
@@ -52,7 +53,7 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 
 	if err != nil {
 		log.Printf("error to create QrCode: %s", err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "an error occured qwhen creating QrCode"})
+		c.JSON(http.StatusBadRequest, exceptions.InternalServerResponseError(err, "an error occured qwhen creating QrCode"))
 		return
 	}
 
@@ -62,7 +63,7 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 
 	if err != nil {
 		log.Printf("error to create driver: %s", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "an error occurred when creating driver"})
+		c.JSON(http.StatusInternalServerError, exceptions.InternalServerResponseError(err, "an error occured qwhen creating driver"))
 		return
 	}
 
