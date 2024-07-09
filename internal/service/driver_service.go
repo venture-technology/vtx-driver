@@ -50,10 +50,14 @@ func (d *DriverService) AuthDriver(ctx context.Context, driver *models.Driver) (
 }
 
 func (d *DriverService) CreateAndSaveQrCode(ctx context.Context, cnh string) (string, error) {
+
 	url := fmt.Sprintf("https://venture-technology.xyz/driver/%s", cnh)
+
 	image, err := qrcode.Encode(url, qrcode.Medium, 256)
+
 	if err != nil {
 		return "", err
 	}
+
 	return d.awsrepository.SaveImageOnAWSBucket(ctx, image, cnh)
 }
