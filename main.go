@@ -6,6 +6,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gin-gonic/gin"
 	"github.com/venture-technology/vtx-driver/config"
 	"github.com/venture-technology/vtx-driver/internal/controller"
@@ -32,10 +35,20 @@ func main() {
 		log.Fatalf("failed to execute migrations: %v", err)
 	}
 
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(config.Cloud.Region),
+		Credentials: credentials.NewStaticCredentials(config.Cloud.AccessKey, config.Cloud.SecretKey, config.Cloud.Token),
+	})
+	if err != nil {
+		log.Fatalf("failed to create session at aws: %v", err)
+	}
+
 	router := gin.Default()
 
+	awsRepository := repository.NewAWSRepository(sess)
+
 	driverRepository := repository.NewDriverRepository(db)
-	driverService := service.NewDriverService(driverRepository)
+	driverService := service.NewDriverService(driverRepository, awsRepository)
 	driverController := controller.NewDriverController(driverService)
 
 	driverController.RegisterRoutes(router)
