@@ -72,3 +72,19 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 	c.JSON(http.StatusCreated, input)
 
 }
+
+func (ct *DriverController) GetDriver(c *gin.Context) {
+
+	cnh := c.Param("cnh")
+
+	driver, err := ct.driverservice.GetDriver(c, &cnh)
+
+	if err != nil {
+		log.Printf("error while found driver: %s", err.Error())
+		c.JSON(http.StatusBadRequest, exceptions.InternalServerResponseError(err, "driver not found"))
+		return
+	}
+
+	c.JSON(http.StatusOK, driver)
+
+}
