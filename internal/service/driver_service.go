@@ -26,6 +26,12 @@ func (d *DriverService) CreateDriver(ctx context.Context, driver *models.Driver)
 
 	driver.Password = utils.HashPassword(driver.Password)
 
+	statusCnh := driver.ValidateCnh()
+
+	if !statusCnh {
+		return fmt.Errorf("cnh invalid")
+	}
+
 	return d.driverrepository.CreateDriver(ctx, driver)
 }
 

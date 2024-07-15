@@ -1,5 +1,7 @@
 package models
 
+import "github.com/venture-technology/vtx-driver/utils"
+
 type Driver struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
@@ -12,4 +14,10 @@ type Driver struct {
 	Number     string `json:"number"`
 	ZIP        string `json:"zip"`
 	Complement string `json:"complement"`
+}
+
+func (d *Driver) ValidateCnh() bool {
+
+	return utils.IsCNH(d.CNH)
+
 }
