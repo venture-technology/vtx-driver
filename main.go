@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gin-gonic/gin"
+	"github.com/segmentio/kafka-go"
 	"github.com/venture-technology/vtx-driver/config"
 	"github.com/venture-technology/vtx-driver/internal/controller"
 	"github.com/venture-technology/vtx-driver/internal/repository"
@@ -44,11 +45,13 @@ func main() {
 	}
 
 	router := gin.Default()
+	producer := kafka.NewWriter(kafka.WriterConfig{Brokers: []string{config.Messaging.Brokers}, Topic: config.Messaging.Topic, Balancer: &kafka.LeastBytes{}})
 
 	awsRepository := repository.NewAWSRepository(sess)
+	kafkaRepository := repository.NewKafkaRepository(producer)
 
 	driverRepository := repository.NewDriverRepository(db)
-	driverService := service.NewDriverService(driverRepository, awsRepository)
+	driverService := service.NewDriverService(driverRepository, awsRepository, kafkaRepository)
 	driverController := controller.NewDriverController(driverService)
 
 	driverController.RegisterRoutes(router)
