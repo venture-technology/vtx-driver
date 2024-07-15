@@ -68,7 +68,7 @@ func (d *DriverService) CreateAndSaveQrCode(ctx context.Context, cnh string) (st
 	return d.awsrepository.SaveImageOnAWSBucket(ctx, image, cnh)
 }
 
-func (d *DriverService) ParserJwtSchool(ctx *gin.Context) (interface{}, error) {
+func (d *DriverService) ParserJwtDriver(ctx *gin.Context) (interface{}, error) {
 
 	cnh, found := ctx.Get("cnh")
 
