@@ -13,7 +13,6 @@ type IDriverRepository interface {
 	DeleteDriver(ctx context.Context, cnh *string) error
 	UpdateDriver(ctx context.Context, driver *models.Driver) error
 	GetDriver(ctx context.Context, cnh *string) (*models.Driver, error)
-	FindAllDrivers(ctx context.Context) ([]models.Driver, error)
 	AuthDriver(ctx context.Context, driver *models.Driver) (*models.Driver, error)
 }
 
