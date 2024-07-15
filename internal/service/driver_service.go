@@ -102,8 +102,8 @@ func (d *DriverService) CreateTokenJWTDriver(ctx context.Context, driver *models
 	conf := config.Get()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"cnpj": driver.CNH,
-		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+		"cnh": driver.CNH,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	jwt, err := token.SignedString([]byte(conf.Server.Secret))

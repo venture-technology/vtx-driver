@@ -96,7 +96,7 @@ func (ct *DriverController) UpdateDriver(c *gin.Context) {
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "cnpj of cookie don't found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
 	}
 
@@ -137,7 +137,7 @@ func (ct *DriverController) DeleteDriver(c *gin.Context) {
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "cnpj of cookie don't found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
 	}
 
