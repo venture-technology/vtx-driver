@@ -3,8 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
+	"github.com/venture-technology/vtx-driver/config"
 	"github.com/venture-technology/vtx-driver/internal/repository"
 	"github.com/venture-technology/vtx-driver/models"
 	"github.com/venture-technology/vtx-driver/utils"
@@ -39,10 +43,6 @@ func (d *DriverService) GetDriver(ctx context.Context, cnh *string) (*models.Dri
 	return d.driverrepository.GetDriver(ctx, cnh)
 }
 
-func (d *DriverService) FindAllDrivers(ctx context.Context) ([]models.Driver, error) {
-	return d.driverrepository.FindAllDrivers(ctx)
-}
-
 func (d *DriverService) UpdateDriver(ctx context.Context, driver *models.Driver) error {
 	return d.driverrepository.UpdateDriver(ctx, driver)
 }
@@ -66,4 +66,35 @@ func (d *DriverService) CreateAndSaveQrCode(ctx context.Context, cnh string) (st
 	}
 
 	return d.awsrepository.SaveImageOnAWSBucket(ctx, image, cnh)
+}
+
+func (d *DriverService) ParserJwtSchool(ctx *gin.Context) (interface{}, error) {
+
+	cnh, found := ctx.Get("cnh")
+
+	if !found {
+		return nil, fmt.Errorf("error while veryfing token")
+	}
+
+	return cnh, nil
+
+}
+
+func (s *DriverService) CreateTokenJWTDriver(ctx context.Context, driver *models.Driver) (string, error) {
+
+	conf := config.Get()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"cnpj": driver.CNH,
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	jwt, err := token.SignedString([]byte(conf.Server.Secret))
+
+	if err != nil {
+		return "", err
+	}
+
+	return jwt, nil
+
 }
