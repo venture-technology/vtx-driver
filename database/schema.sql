@@ -1,5 +1,4 @@
 -- Table drivers
-DROP TABLE drivers;
 
 CREATE TABLE IF NOT EXISTS drivers (
     id SERIAL,
