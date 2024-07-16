@@ -19,6 +19,6 @@ WORKDIR /app
 # Copy the pre-built binary from the previous stage
 COPY --from=builder /app/main .
 
-EXPOSE 7878
+EXPOSE 8787
 
 CMD ["./main"]
