@@ -39,15 +39,15 @@ func (d *DriverService) CreateDriver(ctx context.Context, driver *models.Driver)
 		return fmt.Errorf("cnh invalid")
 	}
 
-	err := d.PublishKafkaMessage(ctx,
-		driver.Email,
-		fmt.Sprintf("Verification Email - %s", driver.Name),
-		fmt.Sprintf("Greetings %s, thank you very much for choosing us, we will be with you today, tomorrow and always. Venture, fast and safe.", driver.Name),
-	)
+	// err := d.PublishKafkaMessage(ctx,
+	// 	driver.Email,
+	// 	fmt.Sprintf("Verification Email - %s", driver.Name),
+	// 	fmt.Sprintf("Greetings %s, thank you very much for choosing us, we will be with you today, tomorrow and always. Venture, fast and safe.", driver.Name),
+	// )
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	return d.driverrepository.CreateDriver(ctx, driver)
 }
