@@ -1,0 +1,31 @@
+name: venture
+development: true
+
+server-driver:
+  host-vtx-driver: "localhost"
+  port-vtx-driver: 8787
+  secret-vtx-driver: "venture"
+
+database:
+  dbuser: "postgres"
+  dbport: 5432
+  dbhost: "localhost"
+  dbpassword: "password"
+  dbname: "dbname"
+  schema: "database/schema.sql"
+
+cloud:
+  region: "us-east-1"
+  accesskey: "accesskey"
+  secretkey: "secretkey"
+  token: ""
+  source: "emailsource"
+  bucketName: "venture-s3-bucket"
+
+cache:
+  address: "addressfromredis"
+  password: "passwordredis"
+
+messaging:
+  broker: "ipfromkafka"
+  topic: "topicname"
