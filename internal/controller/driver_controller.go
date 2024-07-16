@@ -26,12 +26,12 @@ func (ct *DriverController) RegisterRoutes(router *gin.Engine) {
 
 	api := router.Group("api/v1")
 
-	api.GET("/ping", ct.Ping) // pingar rota
+	api.GET("/ping", ct.Ping)
 	api.POST("/driver", ct.CreateDriver)
-	api.GET("/driver/:cnh")
-	api.PATCH("/driver", middleware.DriverMiddleware())
-	api.DELETE("/driver", middleware.DriverMiddleware())
-	api.POST("/login/driver")
+	api.GET("/driver/:cnh", ct.GetDriver)
+	api.PATCH("/driver", middleware.DriverMiddleware(), ct.UpdateDriver)
+	api.DELETE("/driver", middleware.DriverMiddleware(), ct.DeleteDriver)
+	api.POST("/login/driver", ct.AuthDriver)
 
 }
 
@@ -96,7 +96,7 @@ func (ct *DriverController) UpdateDriver(c *gin.Context) {
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "cnpj of cookie don't found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
 	}
 
@@ -137,7 +137,7 @@ func (ct *DriverController) DeleteDriver(c *gin.Context) {
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "cnpj of cookie don't found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
 	}
 

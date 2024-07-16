@@ -39,15 +39,15 @@ func (d *DriverService) CreateDriver(ctx context.Context, driver *models.Driver)
 		return fmt.Errorf("cnh invalid")
 	}
 
-	err := d.PublishKafkaMessage(ctx,
-		driver.Email,
-		fmt.Sprintf("Verification Email - %s", driver.Name),
-		fmt.Sprintf("Greetings %s, thank you very much for choosing us, we will be with you today, tomorrow and always. Venture, fast and safe.", driver.Name),
-	)
+	// err := d.PublishKafkaMessage(ctx,
+	// 	driver.Email,
+	// 	fmt.Sprintf("Verification Email - %s", driver.Name),
+	// 	fmt.Sprintf("Greetings %s, thank you very much for choosing us, we will be with you today, tomorrow and always. Venture, fast and safe.", driver.Name),
+	// )
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	return d.driverrepository.CreateDriver(ctx, driver)
 }
@@ -102,8 +102,8 @@ func (d *DriverService) CreateTokenJWTDriver(ctx context.Context, driver *models
 	conf := config.Get()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"cnpj": driver.CNH,
-		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+		"cnh": driver.CNH,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	jwt, err := token.SignedString([]byte(conf.Server.Secret))

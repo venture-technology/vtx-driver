@@ -1,4 +1,6 @@
 -- Table drivers
+DROP TABLE drivers;
+
 CREATE TABLE IF NOT EXISTS drivers (
     id SERIAL,
     name VARCHAR(100) NOT NULL,
@@ -6,7 +8,6 @@ CREATE TABLE IF NOT EXISTS drivers (
     email VARCHAR(100) NOT NULL,
     password VARCHAR(100) NOT NULL,
     cnh VARCHAR(20) PRIMARY KEY NOT NULL,
-    amount BIGINT NOT NULL,
     qrcode VARCHAR(100) NOT NULL,
     street VARCHAR(100) NOT NULL,
     number VARCHAR(10) NOT NULL,
