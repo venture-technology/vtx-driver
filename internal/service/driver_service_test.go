@@ -38,6 +38,7 @@ func mockDriver() *models.Driver {
 		Number:     "123",
 		ZIP:        "11088440",
 		Complement: "Apt 101",
+		Amount:     100.00,
 	}
 }
 
