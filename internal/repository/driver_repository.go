@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/venture-technology/vtx-driver/models"
+	"github.com/venture-technology/vtx-driver/utils"
 )
 
 type IDriverRepository interface {
@@ -54,11 +55,12 @@ func (dr *DriverRepository) GetDriver(ctx context.Context, cnh *string) (*models
 }
 
 func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Driver) error {
-	sqlQuery := `SELECT name, email, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
+	sqlQuery := `SELECT name, email, password, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
 	var currentDriver models.Driver
 	err := dr.db.QueryRow(sqlQuery, driver.CNH).Scan(
 		&currentDriver.Name,
 		&currentDriver.Email,
+		&currentDriver.Password,
 		&currentDriver.Street,
 		&currentDriver.Number,
 		&currentDriver.ZIP,
@@ -74,6 +76,10 @@ func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Dri
 	if driver.Email != "" && driver.Email != currentDriver.Email {
 		currentDriver.Email = driver.Email
 	}
+	if driver.Password != "" && driver.Password != currentDriver.Password {
+		currentDriver.Password = driver.Password
+		currentDriver.Password = utils.HashPassword(currentDriver.Password)
+	}
 	if driver.Street != "" && driver.Street != currentDriver.Street {
 		currentDriver.Street = driver.Street
 	}
@@ -87,8 +93,8 @@ func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Dri
 		currentDriver.Complement = driver.Complement
 	}
 
-	sqlQueryUpdate := `UPDATE drivers SET name = $1,  email = $2, street = $3, number = $4, zip = $5, complement = $6 WHERE cnh = $7`
-	_, err = dr.db.ExecContext(ctx, sqlQueryUpdate, currentDriver.Name, currentDriver.Email, currentDriver.Street, currentDriver.Number, currentDriver.ZIP, currentDriver.Complement, driver.CNH)
+	sqlQueryUpdate := `UPDATE drivers SET name = $1,  email = $2, password = $3, street = $4, number = $5, zip = $6, complement = $7 WHERE cnh = $8`
+	_, err = dr.db.ExecContext(ctx, sqlQueryUpdate, currentDriver.Name, currentDriver.Email, currentDriver.Password, currentDriver.Street, currentDriver.Number, currentDriver.ZIP, currentDriver.Complement, driver.CNH)
 	return err
 }
 
