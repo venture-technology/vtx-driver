@@ -28,16 +28,17 @@ func NewDriverRepository(conn *sql.DB) *DriverRepository {
 }
 
 func (dr *DriverRepository) CreateDriver(ctx context.Context, driver *models.Driver) error {
-	sqlQuery := `INSERT INTO drivers (qrcode, name, email, password, cpf, cnh, street, number, zip, complement) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
-	_, err := dr.db.Exec(sqlQuery, driver.QrCode, driver.Name, driver.Email, driver.Password, driver.CPF, driver.CNH, driver.Street, driver.Number, driver.ZIP, driver.Complement)
+	sqlQuery := `INSERT INTO drivers (amount, qrcode, name, email, password, cpf, cnh, street, number, zip, complement) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	_, err := dr.db.Exec(sqlQuery, driver.Amount, driver.QrCode, driver.Name, driver.Email, driver.Password, driver.CPF, driver.CNH, driver.Street, driver.Number, driver.ZIP, driver.Complement)
 	return err
 }
 
 func (dr *DriverRepository) GetDriver(ctx context.Context, cnh *string) (*models.Driver, error) {
-	sqlQuery := `SELECT id, name, cpf, cnh, qrcode, email, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
+	sqlQuery := `SELECT id, amount, name, cpf, cnh, qrcode, email, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
 	var driver models.Driver
 	err := dr.db.QueryRow(sqlQuery, *cnh).Scan(
 		&driver.ID,
+		&driver.Amount,
 		&driver.Name,
 		&driver.CPF,
 		&driver.CNH,
@@ -55,10 +56,11 @@ func (dr *DriverRepository) GetDriver(ctx context.Context, cnh *string) (*models
 }
 
 func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Driver) error {
-	sqlQuery := `SELECT name, email, password, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
+	sqlQuery := `SELECT name, amount, email, password, street, number, zip, complement FROM drivers WHERE cnh = $1 LIMIT 1`
 	var currentDriver models.Driver
 	err := dr.db.QueryRow(sqlQuery, driver.CNH).Scan(
 		&currentDriver.Name,
+		&currentDriver.Amount,
 		&currentDriver.Email,
 		&currentDriver.Password,
 		&currentDriver.Street,
@@ -72,6 +74,11 @@ func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Dri
 
 	if driver.Name != "" && driver.Name != currentDriver.Name {
 		currentDriver.Name = driver.Name
+	}
+
+	if driver.Amount != 0 && driver.Amount != currentDriver.Amount {
+		currentDriver.Amount = driver.Amount
+
 	}
 	if driver.Email != "" && driver.Email != currentDriver.Email {
 		currentDriver.Email = driver.Email
@@ -93,8 +100,8 @@ func (dr *DriverRepository) UpdateDriver(ctx context.Context, driver *models.Dri
 		currentDriver.Complement = driver.Complement
 	}
 
-	sqlQueryUpdate := `UPDATE drivers SET name = $1,  email = $2, password = $3, street = $4, number = $5, zip = $6, complement = $7 WHERE cnh = $8`
-	_, err = dr.db.ExecContext(ctx, sqlQueryUpdate, currentDriver.Name, currentDriver.Email, currentDriver.Password, currentDriver.Street, currentDriver.Number, currentDriver.ZIP, currentDriver.Complement, driver.CNH)
+	sqlQueryUpdate := `UPDATE drivers SET name = $1,  amount = $2, email = $3, password = $4, street = $5, number = $6, zip = $7, complement = $8 WHERE cnh = $9`
+	_, err = dr.db.ExecContext(ctx, sqlQueryUpdate, currentDriver.Name, currentDriver.Amount, currentDriver.Email, currentDriver.Password, currentDriver.Street, currentDriver.Number, currentDriver.ZIP, currentDriver.Complement, driver.CNH)
 	return err
 }
 
@@ -118,15 +125,19 @@ func (dr *DriverRepository) DeleteDriver(ctx context.Context, cnh *string) error
 }
 
 func (dr *DriverRepository) AuthDriver(ctx context.Context, driver *models.Driver) (*models.Driver, error) {
-	sqlQuery := `SELECT id, name, cpf, cnh, email, qrcode, password FROM drivers WHERE email = $1 LIMIT 1`
+	sqlQuery := `SELECT id, amount, name, cpf, cnh, qrcode, street, email, number, zip, password FROM drivers WHERE email = $1 LIMIT 1`
 	var driverData models.Driver
 	err := dr.db.QueryRow(sqlQuery, driver.Email).Scan(
 		&driverData.ID,
+		&driverData.Amount,
 		&driverData.Name,
 		&driverData.CPF,
 		&driverData.CNH,
-		&driverData.Email,
 		&driverData.QrCode,
+		&driverData.Street,
+		&driverData.Email,
+		&driverData.Number,
+		&driverData.ZIP,
 		&driverData.Password,
 	)
 	if err != nil || err == sql.ErrNoRows {
