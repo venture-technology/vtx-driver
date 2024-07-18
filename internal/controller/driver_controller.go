@@ -23,7 +23,6 @@ func NewDriverController(driverservice *service.DriverService) *DriverController
 }
 
 func (ct *DriverController) RegisterRoutes(router *gin.Engine) {
-
 	api := router.Group("api/v1")
 
 	api.GET("/ping", ct.Ping)
@@ -32,7 +31,6 @@ func (ct *DriverController) RegisterRoutes(router *gin.Engine) {
 	api.PATCH("/driver", middleware.DriverMiddleware(), ct.UpdateDriver)
 	api.DELETE("/driver", middleware.DriverMiddleware(), ct.DeleteDriver)
 	api.POST("/login/driver", ct.AuthDriver)
-
 }
 
 func (ct *DriverController) Ping(c *gin.Context) {
@@ -42,7 +40,6 @@ func (ct *DriverController) Ping(c *gin.Context) {
 }
 
 func (ct *DriverController) CreateDriver(c *gin.Context) {
-
 	var input models.Driver
 
 	if err := c.BindJSON(&input); err != nil {
@@ -51,8 +48,14 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 		return
 	}
 
-	urlQrCode, err := ct.driverservice.CreateAndSaveQrCode(c, input.CNH)
+	err := input.ValidateAmount()
+	if err != nil {
+		log.Println("amount is less than 200")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "amount is less than 200"})
+		return
+	}
 
+	urlQrCode, err := ct.driverservice.CreateAndSaveQrCode(c, input.CNH)
 	if err != nil {
 		log.Printf("error to create QrCode: %s", err.Error())
 		c.JSON(http.StatusBadRequest, exceptions.InternalServerResponseError(err, "an error occured qwhen creating QrCode"))
@@ -62,7 +65,6 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 	input.QrCode = urlQrCode
 
 	err = ct.driverservice.CreateDriver(c, &input)
-
 	if err != nil {
 		log.Printf("error to create driver: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, exceptions.InternalServerResponseError(err, "an error occured qwhen creating driver"))
@@ -72,15 +74,12 @@ func (ct *DriverController) CreateDriver(c *gin.Context) {
 	log.Print("driver create was successful")
 
 	c.JSON(http.StatusCreated, input)
-
 }
 
 func (ct *DriverController) GetDriver(c *gin.Context) {
-
 	cnh := c.Param("cnh")
 
 	driver, err := ct.driverservice.GetDriver(c, &cnh)
-
 	if err != nil {
 		log.Printf("error while found driver: %s", err.Error())
 		c.JSON(http.StatusBadRequest, exceptions.InternalServerResponseError(err, "driver not found"))
@@ -88,13 +87,10 @@ func (ct *DriverController) GetDriver(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, driver)
-
 }
 
 func (ct *DriverController) UpdateDriver(c *gin.Context) {
-
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
@@ -120,7 +116,6 @@ func (ct *DriverController) UpdateDriver(c *gin.Context) {
 	input.CNH = *cnh
 
 	err = ct.driverservice.UpdateDriver(c, &input)
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, exceptions.InternalServerResponseError(err, "internal server error at update"))
 		return
@@ -129,27 +124,22 @@ func (ct *DriverController) UpdateDriver(c *gin.Context) {
 	log.Print("infos updated")
 
 	c.JSON(http.StatusOK, gin.H{"message": "updated w successfully"})
-
 }
 
 func (ct *DriverController) DeleteDriver(c *gin.Context) {
-
 	cnhInteface, err := ct.driverservice.ParserJwtDriver(c)
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "cnh of cookie don't found"})
 		return
 	}
 
 	cnh, err := utils.InterfaceToString(cnhInteface)
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "the value isn't string"})
 		return
 	}
 
 	err = ct.driverservice.DeleteDriver(c, cnh)
-
 	if err != nil {
 		log.Printf("error whiling deleted school: %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error to deleted school"})
@@ -161,11 +151,9 @@ func (ct *DriverController) DeleteDriver(c *gin.Context) {
 	log.Printf("deleted your account --> %v", cnh)
 
 	c.JSON(http.StatusOK, gin.H{"message": "driver deleted w successfully"})
-
 }
 
 func (ct *DriverController) AuthDriver(c *gin.Context) {
-
 	var input models.Driver
 
 	log.Printf("doing login --> %s", input.Email)
@@ -177,7 +165,6 @@ func (ct *DriverController) AuthDriver(c *gin.Context) {
 	}
 
 	driver, err := ct.driverservice.AuthDriver(c, &input)
-
 	if err != nil {
 		log.Printf("wrong email or password: %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "wrong email or password"})
@@ -200,5 +187,4 @@ func (ct *DriverController) AuthDriver(c *gin.Context) {
 		"driver": driver,
 		"token":  jwt,
 	})
-
 }
