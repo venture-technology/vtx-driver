@@ -1,6 +1,10 @@
 package models
 
-import "github.com/venture-technology/vtx-driver/utils"
+import (
+	"fmt"
+
+	"github.com/venture-technology/vtx-driver/utils"
+)
 
 type Driver struct {
 	ID         int     `json:"id"`
@@ -18,7 +22,12 @@ type Driver struct {
 }
 
 func (d *Driver) ValidateCnh() bool {
-
 	return utils.IsCNH(d.CNH)
+}
 
+func (d *Driver) ValidateAmount() error {
+	if d.Amount < 200 {
+		return fmt.Errorf("valor de quilometragem deve ser superior a 200")
+	}
+	return nil
 }
